@@ -1,16 +1,24 @@
 import express from 'express';
-import Post from '../models/PostModel.js';
+import mongoose from 'mongoose';
+import { addPost, getPosts, deletePost, updatePost } from '../controllers/postsController.js';
+
 
 const router = express.Router();
 
-router.post('/', async (req, res) =>{
+// Get all posts route
 
-    const { title, body } = req.body;
+router.get('/', getPosts);
 
-    await Post.create({title, body})
+// Add new post route
 
-    res.status(200).json({msg:'Post Request'})
+router.post('/', addPost);
 
-} )
+// Delete post route
+
+router.delete('/:id', deletePost);
+
+// Update post route
+
+router.put('/:id', updatePost)
 
 export { router as postsRoutes }

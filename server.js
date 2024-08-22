@@ -8,12 +8,9 @@ app.use(express.json())
 
 app.use('/api/posts', postsRoutes)
 
-mongoose.connect("mongodb://127.0.0.1:27017/demo_db")
+mongoose.connect("mongodb://127.0.0.1:27017/", {dbName: "demo_db"})
   .then(() => {
     console.log("Connected to DB successfully");
     app.listen(4000,'localhost', () => console.log("listening to port 4000"));
   })
   .catch((err) => console.log(err));
-
-
-
