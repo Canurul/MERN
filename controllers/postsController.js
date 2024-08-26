@@ -1,12 +1,32 @@
 import Post from "../models/PostModel.js"
 import mongoose from 'mongoose';
+import User from '../models/UserModel.js'
 /************************** Get All Posts **************************/
 
 const getPosts = async (req, res)=>{
 
+
+
     try{
         const posts = await Post.find()
         res.status(200).json({ posts })
+
+    } catch(error){
+        res.status(500).json({ error: error.message})
+    }
+
+}
+/************************** Get User Posts **************************/
+
+const getUserPosts = async (req, res)=>{
+
+     //Grab the authenticated user from request body
+
+     const user = await User.findById(req.user._id)
+
+    try{
+        const UserPosts = await Post.find({user: user._id})
+        res.status(200).json({ UserPosts })
 
     } catch(error){
         res.status(500).json({ error: error.message})
@@ -21,7 +41,7 @@ async function addPost(req, res){
         // Grab data from request body
     
         const { title, body } = req.body;
-    
+
         //check the fields are not empty
     
         if(!title || !body){
@@ -29,18 +49,21 @@ async function addPost(req, res){
         return res.status(400).json({ error:'all fields are required'})
     
         }
+
+        //Grab the authenticated user from request body
+
+        const user = await User.findById(req.user._id)
     
         try {
     
-            const post = await Post.create({title, body})
+            const post = await Post.create({ user: user._id, title, body })
     
             res.status(200).json({success:'Post Request', post})
     
         } catch (error){
     
-            res.status(400).json({ error: error.message})
-    
-    } 
+            res.status(400).json({ error: error.message })
+    }       
 }
 
 /************************** Delete Post **************************/
@@ -64,6 +87,13 @@ const deletePost = async (req, res)=>{
 
         return res.status(400).json({ error: "Post does not exist"})
     }
+
+    //Check the user owns the post
+    const user = await User.findById(req.user._id);
+    if(!post.user.equals(user._id)){
+        return res.status(401).json({ error: "Not authorized"})
+    }
+
     try{
 
         await post.deleteOne()
@@ -97,11 +127,18 @@ const deletePost = async (req, res)=>{
     if(!post){
         return res.status(400).json({ error: "Post does not exist"});
     }
+
+    //Check the user owns the post
+    const user = await User.findById(req.user._id);
+    if(!post.user.equals(user._id)){
+        return res.status(401).json({ error: "Not authorized"})
+    }
+
     try {
         await post.updateOne({title, body})
-        res.status(200).json({success:'Post was deleted succesfully'});
+        res.status(200).json({success:'Post was updated succesfully'});
     }catch(error){
         res.status(500).json({ error: error.message})
     }
    }
-export { getPosts, addPost, deletePost, updatePost }
+export { getPosts, addPost, deletePost, updatePost, getUserPosts }

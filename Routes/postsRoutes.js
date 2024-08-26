@@ -1,24 +1,23 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { addPost, getPosts, deletePost, updatePost } from '../controllers/postsController.js';
-
+import { addPost, getPosts, deletePost, updatePost, getUserPosts } from '../controllers/postsController.js';
+import auth from '../middlewares/auth.js'
 
 const router = express.Router();
 
 // Get all posts route
-
 router.get('/', getPosts);
 
-// Add new post route
+// Get user posts route
+router.get('/user',auth, getUserPosts);
 
-router.post('/', addPost);
+// Add new post route
+router.post('/', auth, addPost);
 
 // Delete post route
-
-router.delete('/:id', deletePost);
+router.delete('/:id',auth, deletePost);
 
 // Update post route
-
-router.put('/:id', updatePost)
+router.put('/:id',auth, updatePost)
 
 export { router as postsRoutes }
